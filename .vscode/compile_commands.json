@@ -1,0 +1,6 @@
+[
+{
+  "directory": "/home/blocksfunction/桌面/zcode",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-target", "x86_64-linux-gnu", "-o", "build/.objs/zcode/linux/x86_64/src/core/zcode.cpp.o", "src/core/zcode.cpp"],
+  "file": "src/core/zcode.cpp"
+}]
