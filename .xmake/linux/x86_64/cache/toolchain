@@ -1,12 +1,12 @@
 {
     tool_target_zcode_linux_x86_64_cxx = {
-        program = "/usr/bin/gcc",
         toolchain_info = {
-            name = "cross",
             plat = "linux",
-            cachekey = "cross_arch_x86_64_plat_linux",
-            arch = "x86_64"
+            name = "cross",
+            arch = "x86_64",
+            cachekey = "cross_arch_x86_64_plat_linux"
         },
+        program = "/usr/bin/gcc",
         toolname = "gcc"
     }
 }
