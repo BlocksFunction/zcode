@@ -1,4 +1,5 @@
 add_rules("mode.debug", "mode.release")
+set_languages("c++26")
 
 target("zcode")
     set_kind("binary")
