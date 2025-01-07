@@ -1,8 +1,14 @@
 # Xmake cache
 .xmake/
+.vsocde/
+.vscode/.cache/*
 build/
 
 # MacOS Cache
 .DS_Store
 
 
+.xmake/linux/x86_64/cache/toolchain
+.xmake/linux/x86_64/cache/detect
+.vscode/compile_commands.json
+.vscode/settings.json
