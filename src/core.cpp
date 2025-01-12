@@ -1,6 +1,8 @@
+#include <chrono>
 #include <cstdio>
-#include <regex>
+#include <cstdlib>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace IO {
@@ -18,17 +20,25 @@ void scanfA(std::string &str, const char stopChar) {
   while ((tmp = static_cast<char>(getchar())) != stopChar)
     str += tmp;
 }
+
+// 延迟输出
+void printfs(const std::string &str, double speed) {
+  if (!str.empty()) {
+    for (char c : str) {
+      putchar(c);
+      std::fflush(stdout);
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(static_cast<int>(speed)));
+    }
+  }
+}
 } // namespace IO
 
 class File {
 public:
   explicit File(const std::string &FileNames, bool *IsNew = nullptr) {
     if (IsNew) {
-      if (fopen(FileNames.c_str(), "r") == nullptr) {
-        *IsNew = true;
-      } else {
-        *IsNew = false;
-      }
+      *IsNew = fopen(FileNames.c_str(), "r") == nullptr;
     }
     this->FilePtr = fopen(FileNames.c_str(), "r+");
     this->FileName = FileNames;
@@ -40,18 +50,13 @@ public:
     }
   }
 
-  [[nodiscard]] bool Write(std::string &str) const {
-    if (FilePtr) {
-      if (!str.empty() && str[0] == '\n')
-        str.erase(0, str.find_first_not_of('\n'));
+  [[nodiscard]] bool Write(const std::string &str) const {
+    if (FilePtr && !str.empty()) {
       fprintf(this->FilePtr, "%s", str.c_str());
-    } else {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
-
-  [[nodiscard]] FILE *GetFilePtr() const { return FilePtr; }
 
   [[nodiscard]] std::vector<std::string> Read() const {
     char line[1000];
@@ -74,14 +79,24 @@ int main() {
   bool IsNew = true;
   File file(filepath, &IsNew);
   if (IsNew)
-    std::printf("错误: %s 是一个不存在的文件\n", filepath.c_str());
+    printf("错误: %s 是一个不存在的文件\n", filepath.c_str());
   else {
-    std::vector<std::string> a = file.Read();
-    for (std::string i : a) {
-      if (i.find("Input") != std::string::npos) {
-        std::regex pattern("Input");
-        i = std::regex_replace(i, pattern, "");
-        printf("%s", i.c_str());
+    for (std::string line : file.Read()) {
+      if (line.find("Input") != std::string::npos) {
+        line.erase(0, line.find("Input ") + 6);
+        std::string text;
+        int speed = 0;
+        for (char c : line) {
+          if (isalpha(c) || c == ' ') {
+            text += c;
+          } else if (isdigit(c)) {
+            speed = speed * 10 + (c - '0');
+          }
+        }
+        if (speed)
+          IO::printfs(text, speed);
+        else
+          printf("%s", text.c_str());
       }
     }
   }
