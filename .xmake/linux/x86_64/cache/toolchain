@@ -1,66 +1,13 @@
 {
-    gfortran_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    cross_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = false
-    },
-    cuda_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    gcc_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = {
-            name = "gcc",
-            program = "/usr/bin/gcc"
+    tool_target_zcode_linux_x86_64_ld = {
+        program = "/usr/bin/clang++",
+        toolname = "clangxx",
+        toolchain_info = {
+            plat = "linux",
+            name = "clang",
+            arch = "x86_64",
+            cachekey = "clang_arch_x86_64_plat_linux"
         }
-    },
-    fasm_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    go_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    yasm_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    rust_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    nasm_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    nim_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = false
     },
     tool_target_zcode_linux_x86_64_cxx = {
         program = "/usr/bin/clang",
@@ -68,45 +15,8 @@
         toolchain_info = {
             plat = "linux",
             name = "clang",
-            cachekey = "clang_arch_x86_64_plat_linux",
-            arch = "x86_64"
-        }
-    },
-    envs_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    tool_target_zcode_linux_x86_64_ld = {
-        program = "/usr/bin/clang++",
-        toolname = "clangxx",
-        toolchain_info = {
-            plat = "linux",
-            name = "clang",
-            cachekey = "clang_arch_x86_64_plat_linux",
-            arch = "x86_64"
-        }
-    },
-    fpc_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    swift_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = true
-    },
-    clang_arch_x86_64_plat_linux = {
-        plat = "linux",
-        arch = "x86_64",
-        __global = true,
-        __checked = {
-            name = "clang",
-            program = "/usr/bin/clang"
+            arch = "x86_64",
+            cachekey = "clang_arch_x86_64_plat_linux"
         }
     }
 }

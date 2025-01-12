@@ -12,3 +12,7 @@ build/
 .xmake/linux/x86_64/cache/detect
 .vscode/compile_commands.json
 .vscode/settings.json
+.vscode/compile_commands.json
+.xmake/linux/x86_64/cache/detect
+.xmake/linux/x86_64/cache/toolchain
+.vscode/compile_commands.json
