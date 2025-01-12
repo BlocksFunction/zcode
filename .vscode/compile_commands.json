@@ -1,6 +1,0 @@
-[
-{
-  "directory": "/home/imaur/桌面/zcode",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "-m64", "-g", "-O0", "-std=c++23", "-o", "build/.objs/zcode/linux/x86_64/debug/src/core.cpp.o", "src/core.cpp"],
-  "file": "src/core.cpp"
-}]
