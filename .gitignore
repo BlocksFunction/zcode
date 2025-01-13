@@ -16,3 +16,9 @@ build/
 .xmake/linux/x86_64/cache/detect
 .xmake/linux/x86_64/cache/toolchain
 .vscode/compile_commands.json
+CMakeLists.txt
+.idea/editor.xml
+.idea/.gitignore
+.idea/vcs.xml
+.idea/modules.xml
+.idea/zcode.iml
