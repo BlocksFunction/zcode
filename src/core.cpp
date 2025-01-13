@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
-#include <cstdlib>
 #include <map>
 #include <string>
 #include <thread>
@@ -79,14 +78,14 @@ int main() {
     std::map<std::string, std::string> varList = {};
 
     for (std::string line : file.Read()) {
-      if (line.find("=") != std::string::npos) {
+      if (line.find('=') != std::string::npos) {
         std::string right, left;
         const size_t lc = line.find('=');
         right = line.substr(0, lc);
-        right.erase(std::remove(right.begin(), right.end(), ' '), right.end());
+        right.erase(std::ranges::remove(right, ' ').begin(), right.end());
         left = line.substr(lc + 1, line.length());
-        left.erase(std::remove(left.begin(), left.end(), ' '), left.end());
-        left.erase(std::remove(left.begin(), left.end(), '\n'),
+        left.erase(std::ranges::remove(left, ' ').begin(), left.end());
+        left.erase(std::ranges::remove(left, '\n').begin(),
                    left.end()); // 去除换行符
         varList[right] = left;
       }
@@ -101,12 +100,12 @@ int main() {
 
           // 处理变量引用
           size_t pos = 0;
-          while ((pos = text.find("{", pos)) != std::string::npos) {
-            size_t endPos = text.find("}", pos);
+          while ((pos = text.find('{', pos)) != std::string::npos) {
+            size_t endPos = text.find('}', pos);
             if (endPos == std::string::npos)
               break; // 未找到匹配的 }
-            std::string varName = text.substr(pos + 1, endPos - pos - 1);
-            if (varList.find(varName) != varList.end()) {
+            if (std::string varName = text.substr(pos + 1, endPos - pos - 1);
+                varList.contains(varName)) {
               text.replace(pos, endPos - pos + 1, varList[varName]);
               pos += varList[varName].length(); // 移动到替换后的位置
             } else {
@@ -118,8 +117,7 @@ int main() {
           for (size_t i = 0; i < text.length(); ++i) {
             if (text[i] == '\\' && i + 1 < text.length()) {
               if (text[i + 1] == 'n') {
-                processedText += '\n',
-                i++;
+                processedText += '\n', i++;
               } else {
                 processedText += text[i];
               }
