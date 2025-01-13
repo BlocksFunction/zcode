@@ -24,9 +24,11 @@ void scanfA(std::string &str, const char stopChar) { // 输入字符串x2
 void printfs(const std::string &str, double speed) { // 输出
   for (char c : str) {
     putchar(c);
-    std::fflush(stdout);
-    std::this_thread::sleep_for(
-        std::chrono::milliseconds(static_cast<int>(speed)));
+    if (c != '\n') { // 只有在字符不是换行符时才引入延迟
+      std::fflush(stdout);
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(static_cast<int>(speed)));
+    }
   }
 }
 } // namespace IO
@@ -84,6 +86,8 @@ int main() {
         right.erase(std::remove(right.begin(), right.end(), ' '), right.end());
         left = line.substr(lc + 1, line.length());
         left.erase(std::remove(left.begin(), left.end(), ' '), left.end());
+        left.erase(std::remove(left.begin(), left.end(), '\n'),
+                   left.end()); // 去除换行符
         varList[right] = left;
       }
       if (line.find("Input") != std::string::npos) {
@@ -104,20 +108,24 @@ int main() {
             std::string varName = text.substr(pos + 1, endPos - pos - 1);
             if (varList.find(varName) != varList.end()) {
               text.replace(pos, endPos - pos + 1, varList[varName]);
+              pos += varList[varName].length(); // 移动到替换后的位置
+            } else {
+              pos = endPos + 1; // 移动到下一个位置
             }
-            pos += varList[varName].length(); // 移动到替换后的位置
           }
 
-          // 处理转义字符
-          std::string processedText;
+          std::string processedText; // 处理转义字符
           for (size_t i = 0; i < text.length(); ++i) {
             if (text[i] == '\\' && i + 1 < text.length()) {
               if (text[i + 1] == 'n') {
-                processedText += '\n', i++;
-              } else
+                processedText += '\n',
+                i++;
+              } else {
                 processedText += text[i];
-            } else
+              }
+            } else {
               processedText += text[i];
+            }
           }
 
           if (speed)
