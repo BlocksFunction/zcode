@@ -8,23 +8,23 @@
 #include <vector>
 
 namespace IO {
-void scanfs(std::string &str) { // 输入字符串
+void scanfs(std::string &str) {
   char tmp;
   while ((tmp = static_cast<char>(getchar())) != '\n' && tmp != ' ' &&
          tmp != EOF)
     str += tmp;
 }
 
-void scanfA(std::string &str, const char stopChar) { // 输入字符串x2
+void scanfA(std::string &str, const char stopChar) {
   char tmp;
   while ((tmp = static_cast<char>(getchar())) != stopChar)
     str += tmp;
 }
 
-void printfs(const std::string &str, double speed) { // 输出
+void printfs(const std::string &str, double speed) {
   for (char c : str) {
     putchar(c);
-    if (c != '\n') { // 只有在字符不是换行符时才引入延迟
+    if (c != '\n') {
       std::fflush(stdout);
       std::this_thread::sleep_for(
           std::chrono::milliseconds(static_cast<int>(speed)));
@@ -86,11 +86,8 @@ int main() {
         varList[key] = value;
       } else if (line.find("Input") != std::string::npos) {
         line.erase(0, line.find("Input ") + 6);
-        auto [text, speed] = [&line] {
-          size_t commaPos = line.find(',');
-          return std::make_pair(line.substr(0, commaPos),
-                                std::stoi(line.substr(commaPos + 1)));
-        }();
+        size_t commaPos = line.find(',');
+        std::string text = line.substr(0, commaPos);
         if (text.front() == '"' && text.back() == '"')
           text = text.substr(1, text.length() - 2);
         for (size_t size = 0;
@@ -115,10 +112,12 @@ int main() {
             processedText += text[i];
           }
         }
-        if (speed)
+        if (commaPos != std::string::npos) {
+          int speed = std::stoi(line.substr(commaPos + 1));
           IO::printfs(processedText, speed);
-        else
+        } else {
           printf("%s", processedText.c_str());
+        }
       }
     }
   }
