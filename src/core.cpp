@@ -38,7 +38,7 @@ public:
   explicit File(const std::string &FileNames, bool *IsNew = nullptr)
       : FileName(FileNames), FilePtr(fopen(FileNames.c_str(), "r+")) {
     if (IsNew)
-      *IsNew = FilePtr == nullptr;
+      *IsNew = (FilePtr == nullptr);
   }
 
   ~File() {
