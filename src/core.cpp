@@ -69,12 +69,11 @@ int main() {
   printf("ZCode: 解释器\n文件地址: ");
   std::string filepath;
   IO::scanfA(filepath, '\n');
-  bool IsNew;
-  File file(filepath, &IsNew);
-  if (IsNew) {
+  bool IsNotHave;
+  File file(filepath, &IsNotHave);
+  if (IsNotHave) {
     printf("错误: %s 是一个不存在的文件\n", filepath.c_str());
-  } else {
-    // 定义变量列表
+  } else { // 定义变量列表
     std::map<std::string, std::string> varList = {};
 
     for (std::string line : file.Read()) {
