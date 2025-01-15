@@ -73,6 +73,7 @@ void CommandAST(std::string command) {
     return;
   else if (command.find("Output") != std::string::npos) {
     command.erase(0, command.find("Output") + 6);
+    command.erase(std::ranges::remove(command, '\n').begin(), command.end());
     size_t pos = 0;
     while ((pos = command.find('{', pos)) != std::string::npos) {
       size_t endPos = command.find('}', pos);
@@ -140,7 +141,8 @@ void OnFile(const std::string &FilePath) {
     command.clear();
     IO::scanfA(command, '\n');
     CommandAST(command);
-    putchar('\n');
+    if (command.front() != '#' && command.find("Output") != std::string::npos)
+      putchar('\n');
   }
 }
 
