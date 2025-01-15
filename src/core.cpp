@@ -38,7 +38,8 @@ class File {
 public:
   explicit File(const std::string &FileNames, bool *IsHave = nullptr)
       : FileName(FileNames), FilePtr(fopen(FileNames.c_str(), "r+")) {
-    IsHave ? *IsHave = (FilePtr == nullptr) : NULL;
+    if (IsHave)
+      *IsHave = (FilePtr != nullptr);
   }
 
   ~File() {
@@ -115,7 +116,7 @@ void CommandAST(std::string command) {
 void OnFile(std::string FilePath) {
   bool IsHave;
   File file(FilePath, &IsHave);
-  if (IsHave)
+  if (!IsHave)
     throw std::runtime_error("不存在文件!");
   for (std::string line : file.Read())
     CommandAST(line);
@@ -135,7 +136,7 @@ int main(int argv, char **argc) {
   std::printf("欢迎使用ZCode的解释器\n");
   if (argv > 1)
     try {
-      OnFile(argc[0]);
+      OnFile(argc[1]);
     } catch (std::runtime_error &error) {
       printf("错误: %s", error.what());
     }
