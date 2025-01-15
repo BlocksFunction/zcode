@@ -1,30 +1,31 @@
 #include <algorithm>
-#include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <map>
-#include <ranges>
+#include <stdexcept>
 #include <string>
+#include <sys/types.h>
 #include <thread>
 #include <vector>
 
 namespace IO {
-void scanfs(std::string &str) {
+void scanfs(std::string &str) { // 输入字符串
   char tmp;
   while ((tmp = static_cast<char>(getchar())) != '\n' && tmp != ' ' &&
          tmp != EOF)
     str += tmp;
 }
 
-void scanfA(std::string &str, const char stopChar) {
+void scanfA(std::string &str, const char stopChar) { // 输入字符串x2
   char tmp;
   while ((tmp = static_cast<char>(getchar())) != stopChar)
     str += tmp;
 }
 
-void printfs(const std::string &str, double speed) {
+void printfs(const std::string &str, double speed) { // 输出
   for (char c : str) {
     putchar(c);
-    if (c != '\n') {
+    if (c != '\n') { // 只有在字符不是换行符时才引入延迟
       std::fflush(stdout);
       std::this_thread::sleep_for(
           std::chrono::milliseconds(static_cast<int>(speed)));
@@ -35,10 +36,9 @@ void printfs(const std::string &str, double speed) {
 
 class File {
 public:
-  explicit File(const std::string &FileNames, bool *IsNew = nullptr)
+  explicit File(const std::string &FileNames, bool *IsHave = nullptr)
       : FileName(FileNames), FilePtr(fopen(FileNames.c_str(), "r+")) {
-    if (IsNew)
-      *IsNew = (FilePtr == nullptr);
+    IsHave ? *IsHave = (FilePtr == nullptr) : NULL;
   }
 
   ~File() {
@@ -66,59 +66,81 @@ private:
   FILE *FilePtr;
 };
 
-int main() {
-  printf("ZCode: 解释器\n文件地址: ");
-  std::string filepath;
-  IO::scanfA(filepath, '\n');
-  bool IsNotHave;
-  File file(filepath, &IsNotHave);
-  if (IsNotHave) {
-    printf("错误: %s 是一个不存在的文件\n", filepath.c_str());
-  } else {
-    std::map<std::string, std::string> varList;
-    for (std::string line : file.Read()) {
-      if (auto pos = line.find('='); pos != std::string::npos) {
-        std::string key = line.substr(0, pos);
-        std::string value = line.substr(pos + 1);
-        key.erase(std::ranges::remove(key, ' ').begin(), key.end());
-        value.erase(std::ranges::remove(value, ' ').begin(), value.end());
-        value.erase(std::ranges::remove(value, '\n').begin(), value.end());
-        varList[key] = value;
-      } else if (line.find("Input") != std::string::npos) {
-        line.erase(0, line.find("Input ") + 6);
-        size_t commaPos = line.find(',');
-        std::string text = line.substr(0, commaPos);
-        if (text.front() == '"' && text.back() == '"')
-          text = text.substr(1, text.length() - 2);
-        for (size_t size = 0;
-             (size = text.find('{', size)) != std::string::npos;) {
-          const size_t endPos = text.find('}', size);
-          if (endPos == std::string::npos)
-            break;
-          std::string varName = text.substr(size + 1, endPos - size - 1);
-          if (varList.contains(varName)) {
-            text.replace(size, endPos - size + 1, varList[varName]);
-            size += varList[varName].length();
-          } else {
-            size = endPos + 1;
-          }
-        }
-        std::string processedText;
-        for (size_t i = 0; i < text.length(); ++i) {
-          if (text[i] == '\\' && i + 1 < text.length() && text[i + 1] == 'n') {
-            processedText += '\n';
-            i++;
-          } else {
-            processedText += text[i];
-          }
-        }
-        if (commaPos != std::string::npos) {
-          int speed = std::stoi(line.substr(commaPos + 1));
-          IO::printfs(processedText, speed);
-        } else {
-          printf("%s", processedText.c_str());
-        }
-      }
+std::map<std::string, std::string> VarList;
+
+void CommandAST(std::string command) {
+  if (auto pos = command.find(',');
+      pos != std::string::npos && command.find('"') == std::string::npos) {
+    std::string VarName = command.substr(0, pos);
+    std::string VarValue = command.substr(pos + 1);
+    // 去除空格
+    VarName.erase(std::ranges::remove(VarName, '"').begin(), VarName.end());
+    VarValue.erase(std::ranges::remove(VarName, '"').begin(), VarName.end());
+    VarValue.erase(std::ranges::remove(VarName, '\n').begin(), VarName.end());
+    VarList[VarName] = VarValue;
+  } else if (command.find("Output") != std::string::npos) {
+    command.erase(0, command.find("Output") + 6);
+    std::string text =
+        command.substr(command.find('"'), command.find_last_of(','));
+    for (size_t size = 0; (size = text.find('{', size)) != std::string::npos;) {
+      const size_t endPos = text.find('}', size);
+      if (endPos == std::string::npos)
+        break;
+      std::string VarName = text.substr(size + 1, endPos - size - 1);
+      if (VarList.contains(VarName)) {
+        text.replace(size, endPos - size + 1, VarList[VarName]);
+        size += VarList[VarName].length();
+      } else
+        size = endPos + 1;
     }
+    std::string OutText;
+    for (size_t i = 0; i < text.length(); ++i)
+      if (text[i] == '\\' && i + 1 < text.length() && text[i + 1] == 'n')
+        OutText += '\n';
+    if (auto pos = command.find_last_of(',');
+        pos != std::string::npos && pos > command.find_last_of('"')) {
+      int speed = std::stoi(command.substr(pos + 1));
+      command.erase(std::ranges::remove(command, '"').begin(), command.end());
+      command = command.substr(1, command.find_last_of(',') - 1);
+      IO::printfs(command, speed);
+    } else {
+      command.erase(std::ranges::remove(command, '"').begin(), command.end());
+      command = command.substr(1, command.length());
+      printf("%s", command.c_str());
+    }
+  } else if (command.find("exit") != std::string::npos)
+    exit(EXIT_SUCCESS);
+}
+
+void OnFile(std::string FilePath) {
+  bool IsHave;
+  File file(FilePath, &IsHave);
+  if (IsHave)
+    throw std::runtime_error("不存在文件!");
+  for (std::string line : file.Read())
+    CommandAST(line);
+}
+
+void OnCommand() {
+  std::string command;
+  while (true) {
+    command.clear();
+    IO::scanfA(command, '\n');
+    CommandAST(command);
+    putchar('\n');
   }
+}
+
+int main(int argv, char **argc) {
+  std::printf("欢迎使用ZCode的解释器\n");
+  if (argv > 1)
+    try {
+      OnFile(argc[0]);
+    } catch (std::runtime_error &error) {
+      printf("错误: %s", error.what());
+    }
+  else
+    OnCommand();
+  return 0;
+  // if () {}
 }
