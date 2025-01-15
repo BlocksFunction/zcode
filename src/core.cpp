@@ -4,7 +4,6 @@
 #include <map>
 #include <stdexcept>
 #include <string>
-#include <sys/types.h>
 #include <thread>
 #include <vector>
 
@@ -75,12 +74,12 @@ void CommandAST(std::string command) {
   else if (command.find("Output") != std::string::npos) {
     command.erase(0, command.find("Output") + 6);
     size_t pos = 0;
-    while ((pos = command.find("{", pos)) != std::string::npos) {
-      size_t endPos = command.find("}", pos);
+    while ((pos = command.find('{', pos)) != std::string::npos) {
+      size_t endPos = command.find('}', pos);
       if (endPos == std::string::npos)
         break; // 未找到匹配的 }
       std::string varName = command.substr(pos + 1, endPos - pos - 1);
-      if (VarList.find(varName) != VarList.end()) {
+      if (VarList.contains(varName)) {
         command.replace(pos, endPos - pos + 1, VarList[varName]);
         pos += VarList[varName].length(); // 移动到替换后的位置
       } else {
@@ -93,9 +92,9 @@ void CommandAST(std::string command) {
       pos += 1;
     }
 
-    if (auto pos = command.find_last_of(',');
-        pos != std::string::npos && pos > command.find_last_of('"')) {
-      int speed = std::stoi(command.substr(pos + 1));
+    if (auto size = command.find_last_of(',');
+        size != std::string::npos && size > command.find_last_of('"')) {
+      int speed = std::stoi(command.substr(size + 1));
       command.erase(std::ranges::remove(command, '"').begin(), command.end());
       command = command.substr(1, command.find_last_of(',') - 1);
       IO::printfs(command, speed);
@@ -126,16 +125,16 @@ void CommandAST(std::string command) {
   }
 }
 
-void OnFile(std::string FilePath) {
+void OnFile(const std::string &FilePath) {
   bool IsHave;
-  File file(FilePath, &IsHave);
+  const File file(FilePath, &IsHave);
   if (!IsHave)
     throw std::runtime_error("不存在文件!");
-  for (std::string line : file.Read())
+  for (const std::string &line : file.Read())
     CommandAST(line);
 }
 
-void OnCommand() {
+[[noreturn]] void OnCommand() {
   std::string command;
   while (true) {
     command.clear();

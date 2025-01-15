@@ -22,3 +22,4 @@ CMakeLists.txt
 .idea/vcs.xml
 .idea/modules.xml
 .idea/zcode.iml
+.idea/*
