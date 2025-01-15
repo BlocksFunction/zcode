@@ -32,8 +32,9 @@ jobs:
     - name: Install clang (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        choco install llvm
+        choco install llvm --force
         refreshenv
+        $env:Path = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
 
     - name: Install clang (macOS)
       if: matrix.os == 'macos-latest'
