@@ -143,5 +143,4 @@ int main(int argv, char **argc) {
   else
     OnCommand();
   return 0;
-  // if () {}
 }
