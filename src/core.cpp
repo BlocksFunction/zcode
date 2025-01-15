@@ -70,34 +70,29 @@ private:
 std::map<std::string, std::string> VarList;
 
 void CommandAST(std::string command) {
-  if (auto pos = command.find(',');
-      pos != std::string::npos && command.find('"') == std::string::npos) {
-    std::string VarName = command.substr(0, pos);
-    std::string VarValue = command.substr(pos + 1);
-    // 去除空格
-    VarName.erase(std::ranges::remove(VarName, '"').begin(), VarName.end());
-    VarValue.erase(std::ranges::remove(VarName, '"').begin(), VarName.end());
-    VarValue.erase(std::ranges::remove(VarName, '\n').begin(), VarName.end());
-    VarList[VarName] = VarValue;
-  } else if (command.find("Output") != std::string::npos) {
+  if (command.front() == '#')
+    return;
+  else if (command.find("Output") != std::string::npos) {
     command.erase(0, command.find("Output") + 6);
-    std::string text =
-        command.substr(command.find('"'), command.find_last_of(','));
-    for (size_t size = 0; (size = text.find('{', size)) != std::string::npos;) {
-      const size_t endPos = text.find('}', size);
+    size_t pos = 0;
+    while ((pos = command.find("{", pos)) != std::string::npos) {
+      size_t endPos = command.find("}", pos);
       if (endPos == std::string::npos)
-        break;
-      std::string VarName = text.substr(size + 1, endPos - size - 1);
-      if (VarList.contains(VarName)) {
-        text.replace(size, endPos - size + 1, VarList[VarName]);
-        size += VarList[VarName].length();
-      } else
-        size = endPos + 1;
+        break; // 未找到匹配的 }
+      std::string varName = command.substr(pos + 1, endPos - pos - 1);
+      if (VarList.find(varName) != VarList.end()) {
+        command.replace(pos, endPos - pos + 1, VarList[varName]);
+        pos += VarList[varName].length(); // 移动到替换后的位置
+      } else {
+        pos = endPos + 1; // 移动到下一个位置
+      }
     }
-    std::string OutText;
-    for (size_t i = 0; i < text.length(); ++i)
-      if (text[i] == '\\' && i + 1 < text.length() && text[i + 1] == 'n')
-        OutText += '\n';
+    pos = 0;
+    while ((pos = command.find("\\n", pos)) != std::string::npos) {
+      command.replace(pos, 2, "\n");
+      pos += 1;
+    }
+
     if (auto pos = command.find_last_of(',');
         pos != std::string::npos && pos > command.find_last_of('"')) {
       int speed = std::stoi(command.substr(pos + 1));
@@ -109,8 +104,26 @@ void CommandAST(std::string command) {
       command = command.substr(1, command.length());
       printf("%s", command.c_str());
     }
+  } else if (command.find("Input") != std::string::npos) {
+    command.erase(0, command.find("Input") + 6);
+    std::string temp;
+    IO::scanfs(temp);
+    printf("%s", temp.c_str());
+    if (VarList.find(command) != VarList.end())
+      VarList[command] = temp;
+
   } else if (command.find("exit") != std::string::npos)
     exit(EXIT_SUCCESS);
+  else if (command.find('=') != std::string::npos) {
+    size_t pos = command.find('=');
+    std::string VarName = command.substr(0, pos);
+    std::string VarValue = command.substr(pos + 1);
+    // 去除空格
+    VarName.erase(std::ranges::remove(VarName, ' ').begin(), VarName.end());
+    VarValue.erase(std::ranges::remove(VarValue, ' ').begin(), VarValue.end());
+    VarValue.erase(std::ranges::remove(VarValue, '\n').begin(), VarValue.end());
+    VarList[VarName] = VarValue;
+  }
 }
 
 void OnFile(std::string FilePath) {
