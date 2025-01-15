@@ -109,7 +109,7 @@ void CommandAST(std::string command) {
     std::string temp;
     IO::scanfs(temp);
     if (VarList.contains(command)) {
-      VarList[command] = "temp";
+      VarList[command] = temp;
     }
   } else if (command.find("exit") != std::string::npos)
     exit(EXIT_SUCCESS);
