@@ -106,12 +106,12 @@ void CommandAST(std::string command) {
     }
   } else if (command.find("Input") != std::string::npos) {
     command.erase(0, command.find("Input") + 6);
+    command.erase(std::ranges::remove(command, '\n').begin(), command.end());
     std::string temp;
     IO::scanfs(temp);
-    printf("%s", temp.c_str());
-    if (VarList.find(command) != VarList.end())
-      VarList[command] = temp;
-
+    if (VarList.contains(command)) {
+      VarList[command] = "temp";
+    }
   } else if (command.find("exit") != std::string::npos)
     exit(EXIT_SUCCESS);
   else if (command.find('=') != std::string::npos) {
