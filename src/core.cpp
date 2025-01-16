@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
-#include <map>
 #include <stdexcept>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 namespace IO {
@@ -66,7 +66,12 @@ private:
   FILE *FilePtr;
 };
 
-std::map<std::string, std::string> VarList;
+std::unordered_map<std::string, std::string> VarList;
+bool FunctionFlags;
+struct Function {
+  std::string name;
+  std::vector<std::string> code;
+};
 
 void CommandAST(std::string command) {
   if (command.front() == '#')
@@ -133,16 +138,27 @@ void OnFile(const std::string &FilePath) {
     throw std::runtime_error("不存在文件!");
   for (const std::string &line : file.Read())
     CommandAST(line);
+  exit(EXIT_SUCCESS);
 }
 
 [[noreturn]] void OnCommand() {
+  printf("退出输入exit, 运行输入run\n");
   std::string command;
+  std::vector<std::string> line;
   while (true) {
     command.clear();
     IO::scanfA(command, '\n');
-    CommandAST(command);
-    if (command.front() != '#' && command.find("Output") != std::string::npos)
-      putchar('\n');
+    command.erase(std::ranges::remove(command, '\n').begin(), command.end());
+    if (command == "run") {
+      for (auto i : line)
+        CommandAST(i);
+      line.clear();
+      printf("\n运行完成\n");
+    } else {
+      if (command == "exit")
+        exit(EXIT_SUCCESS);
+      line.push_back(command);
+    }
   }
 }
 
